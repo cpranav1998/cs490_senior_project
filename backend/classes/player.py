@@ -32,10 +32,18 @@ class Player:
 			loc.add_piece(piece)
 			board.update_location(x,y,loc)
 
-	def move_piece(self, x, y, number, locations_to_place, board):
+	def all_next_to(self,locations_to_place):
+		x,y = locations_to_place[0][0]
+		for element in locations_to_place[1:]:
+			next_x,next_y = element[0]
+			if (next_x,next_y) not in set([(x+1,y),(x-1,y),(x,y+1),(x,y-1)]):
+				return False
+		return True
+
+ 	def move_piece(self, x, y, number, locations_to_place, board):
 		loc = board.get_location(x,y)
 		top_pieces = loc.get_pieces(number)
-		if all(board.get_loc(element[0][0],element[0][1]).place_possible()==True for element in locations_to_place):
+		if all(board.get_loc(element[0][0],element[0][1]).place_possible()==True for element in locations_to_place) and self.all_next_to(locations_to_place):
 			for element in locations_to_place:
 				x,y,number_of_pieces_to_place = element[0],element[1]
 				pieces_to_place = top_pieces[:number_of_pieces_to_place]
