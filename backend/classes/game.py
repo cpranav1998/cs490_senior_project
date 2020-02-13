@@ -1,14 +1,16 @@
-from player import *
-from board import *
-class Game:
-	def __init__(self, type_of_game, size):
-		if type_of_game == "Human-Human":
-			self.players = [HumanPlayer(21,1),HumanPlayer(21,1)]
-		elif type_of_game == "Human-Computer":
-			self.players = [HumanPlayer(21,1),ComputerPlayer(21,1)]
-		elif type_of_game == "Computer-Computer":
-			self.players = [ComputerPlayer(21,1),ComputerPlayer(21,1)]
-		self.board = Board(size)
+import player
+import board
+class Game(object):
+	def __init__(self, size):
+		# if type_of_game == "Human-Human":
+		# 	self.players = [player.HumanPlayer(21,1,p1_name),player.HumanPlayer(21,1,p2_name)]
+		# elif type_of_game == "Human-Computer":
+		# 	self.players = [player.HumanPlayer(21,1,p1_name),player.ComputerPlayer(21,1,p2_name)]
+		# elif type_of_game == "Computer-Computer":
+		# 	self.players = [player.ComputerPlayer(21,1,p1_name),player.ComputerPlayer(21,1,p2_name)]
+		# else:
+		# 	raise Exception('Error: Invalid type of game')
+		self.board = board.Board(size)
 	def majority_owner(self):
 		p1 = 0
 		p2 = 0
@@ -78,5 +80,39 @@ class Game:
 		return None
 	def is_end(self):
 		return True if self.winner()!=None else False
+	def place_piece(self, player_index, type_of_piece, x, y):
+		if type_of_piece=="Vertical":
+			self.board = self.players[player_index].place_vertical_piece(x,y,self.board)
+		elif type_of_piece=="Horizontal":
+			self.board = self.players[player_index].place_horizontal_piece(x,y,self.board)
+		elif type_of_piece=="Capstone":
+			self.board = self.players[player_index].place_capstone_piece(x,y,self.board)
+		else:
+			raise Exception('Error: Invalid type of move')
+	def move_piece(self, player_index, number, locations_to_place, x, y):
+		if number > board.get_carry_limit():
+			raise Exception('Error: Move violates carry limit')
+		else:
+			self.board = self.players[player_index].move_piece(x,y,number,locations_to_place, self.board)
+	def serialize(self):
+		return {
+			'player_1': self.players[0].serialize(),
+			'player_2': self.players[0].serialize(),
+			'board': self.board.serialize()
+		}
 
+class HumanHumanGame(Game):
+	def __init__(self,size,p1_name,p2_name):
+		super().__init__(size)
+		self.players = [player.HumanPlayer(21,1,p1_name),player.HumanPlayer(21,1,p2_name)]
+
+class HumanComputerGame(Game):
+	def __init__(self,size,p1_name,p2_name):
+		super().__init__(size)
+		self.players = [player.HumanPlayer(21,1,p1_name),player.ComputerPlayer(21,1,p2_name)]
+
+class ComputerComputerGame(Game):
+	def __init__(self,size,p1_name,p2_name):
+		super().__init__(size)
+		self.players = [player.ComputerPlayer(21,1,p1_name),player.ComputerPlayer(21,1,p2_name)]
 
