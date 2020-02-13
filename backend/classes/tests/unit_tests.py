@@ -107,7 +107,8 @@ class PlayerTestCase(unittest.TestCase):
 		except:
 			raised = True
 		self.assertFalse(raised, 'Exception raised')	
-		self.assertEqual(b.free(),25-3)
+		self.assertEqual(b.free(),25-2)
+		print(str(b))
 
 
 class GameTestCase(unittest.TestCase):
@@ -145,8 +146,9 @@ class GameTestCase(unittest.TestCase):
 		g.place_piece(1, "Horizontal", 2, 1)
 		g.place_piece(1, "Horizontal", 3, 2)
 		g.place_piece(1, "Horizontal", 4, 3)
-
 		self.assertEqual(g.majority_owner(),g.players[0])
+		print(str(g))
+
 
 if __name__ == '__main__':
     unittest.main()

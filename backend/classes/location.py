@@ -26,3 +26,5 @@ class Location(object):
 			'y': self.y,
 			'pieces': [piece.serialize() for piece in self.pieces]
 		}
+	def __str__(self):
+		return str([str(p) for p in self.pieces])

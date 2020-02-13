@@ -100,6 +100,8 @@ class Game(object):
 			'player_2': self.players[0].serialize(),
 			'board': self.board.serialize()
 		}
+	def __str__(self):
+		return str(self.board)
 
 class HumanHumanGame(Game):
 	def __init__(self,size,p1_name,p2_name):

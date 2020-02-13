@@ -23,3 +23,11 @@ class Board(object):
 			'locations': [[loc.serialize() for loc in row] for row in self.locations], 
 			'size': self.size,
 		}
+	def __str__(self):
+		output = []
+		for x in range(self.size):
+			row = []
+			for y in range(self.size):
+				row.append(str(self.locations[x][y]))
+			output.append(str(row))
+		return "\n"+"\n".join(output)
