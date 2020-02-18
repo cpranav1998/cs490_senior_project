@@ -14,6 +14,7 @@ class Player(object):
 			p = piece.VerticalPiece(self)
 			loc.add_piece(p)
 			board.update_location(x,y,loc)
+			self.normal_pieces-=1
 			return board
 
 	def place_horizontal_piece(self, x, y, board: board.Board):
@@ -24,6 +25,7 @@ class Player(object):
 			p = piece.HorizontalPiece(self)
 			loc.add_piece(p)
 			board.update_location(x,y,loc)
+			self.normal_pieces-=1
 			return board
 
 	def place_capstone_piece(self, x, y, board: board.Board):
@@ -34,6 +36,7 @@ class Player(object):
 			p = piece.CapstonePiece(self)
 			loc.add_piece(p)
 			board.update_location(x,y,loc)
+			self.capstone_pieces-=1
 			return board
 
 	def all_next_to(self,locations_to_place):
@@ -46,7 +49,9 @@ class Player(object):
 	def move_piece(self, x, y, number, locations_to_place, board: board.Board):
 		loc = board.get_location(x,y)
 		top_pieces = loc.get_pieces(number)
-		if all(board.get_location(element[0][0],element[0][1]).place_possible()==True for element in locations_to_place) and self.all_next_to(locations_to_place):
+		print(self.all_next_to(locations_to_place))
+		print(all(board.get_location(element[0][0],element[0][1]).move_onto_possible()==True for element in locations_to_place))
+		if all(board.get_location(element[0][0],element[0][1]).move_onto_possible()==True for element in locations_to_place) and self.all_next_to(locations_to_place):
 			for element in locations_to_place:
 				x,y = element[0]
 				number_of_pieces_to_place = element[1]

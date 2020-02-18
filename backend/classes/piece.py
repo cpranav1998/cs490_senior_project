@@ -38,8 +38,8 @@ class HorizontalPiece(Piece):
 		self.stackable = True
 		self.form_bridge = True
 		self.type = "horizontal"
-		def __str__(self):
-			return "H"+self.player.get_name()[0]
+	def __str__(self):
+		return "H"+self.player.get_name()[0]
 
 class CapstonePiece(Piece):
 	def __init__(self, player: player.Player):
@@ -47,5 +47,5 @@ class CapstonePiece(Piece):
 		self.stackable = False
 		self.form_bridge = True
 		self.type = "capstone"
-		def __str__(self):
-			return "C"+self.player.get_name()[0]
+	def __str__(self):
+		return "C"+self.player.get_name()[0]

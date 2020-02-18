@@ -11,9 +11,15 @@ class Location(object):
 			items.append(self.pieces.pop())
 		return items[::-1]
 	def add_pieces(self, pieces: piece.Piece):
-		self.pieces.extend(pieces)
+		if len(self.pieces)==0 or self.pieces[-1].can_be_stacked():
+			self.pieces.extend(pieces)
+		else:
+			raise Exception('Error: Piece cannot be stacked on')
 	def add_piece(self, piece: piece.Piece):
-		self.pieces.append(piece)
+		if len(self.pieces)==0 or self.pieces[-1].can_be_stacked():
+			self.pieces.append(piece)
+		else:
+			raise Exception('Error: Piece cannot be stacked on')
 	def move_onto_possible(self):
 		return self.pieces[-1].can_be_stacked()
 	def place_possible(self):

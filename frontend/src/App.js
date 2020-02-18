@@ -10,7 +10,8 @@ class App extends React.Component {
     this.state = {
       game: undefined,
       error: undefined,
-      move: undefined
+      move: undefined,
+      rows: []
     }
   }
   generate_squares = () => {
@@ -19,8 +20,8 @@ class App extends React.Component {
       let row = []
       for (let y = 0; y < 5; y++) {
         row.push(
-          <Col>
-            <Square x={x} y={y} location={this.state.game===undefined? undefined:this.state.game.board.locations[x][y]}/>
+          <Col key={`col${x}${y}`}>
+            <Square key={`square${x}${y}`} x={x} y={y} location={this.state.game===undefined? undefined:this.state.game.board.locations[x][y]} style={{position: "relative"}}/>
           </Col>
         )
       }
@@ -28,36 +29,29 @@ class App extends React.Component {
     }
     return rows
   }
+  componentDidUpdate() {
+    console.log(this.state)
+  }
   async newGame(type_of_game) {
     try {
       const response = await axios.get("http://localhost:5000/api/v1/new_game",
         { params: {type_of_game: type_of_game, p1_name: "red", p2_name:"green"}})
       console.log(response.data)
-      this.setState({
-        game: response.data,
-        error: undefined,
-      });
-    } catch (error) {
-      // Error 
-      if (error.response) {
-          /*
-           * The request was made and the server responded with a
-           * status code that falls out of the range of 2xx
-           */
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-      } else if (error.request) {
-          /*
-           * The request was made but no response was received, `error.request`
-           * is an instance of XMLHttpRequest in the browser and an instance
-           * of http.ClientRequest in Node.js
-           */
-          console.log(error.request);
+      if("error" in response.data) {
+        this.setState({
+          error: response.data.error,
+        });
       } else {
-          // Something happened in setting up the request and triggered an Error
-          console.log('Error', error.message);
+        this.setState({
+          game: response.data,
+          error: undefined,
+          rows: []
+        });
+        this.setState({
+          rows: this.generate_squares()
+        });
       }
+    } catch (error) {
       console.log(error);
       this.setState({
         error: error.message,
@@ -69,42 +63,94 @@ class App extends React.Component {
   }
 
   parseMove = (moveTokens) => {
-    let processedBuilder = {}
+    let processedBuilder = {player: "player"}
     if (moveTokens[0]==="place") {
       processedBuilder["type_of_piece"]=moveTokens[1]
       processedBuilder["x"]=moveTokens[2]
       processedBuilder["y"]=moveTokens[3]
+      processedBuilder["place_piece"]=0
       this.placePiece(processedBuilder)
     } else if (moveTokens[0]==="move") {
       processedBuilder["x"]=moveTokens[1]
       processedBuilder["y"]=moveTokens[2]
+      processedBuilder["number"]=moveTokens[3]
       let locationsToPlace = []
-      for (let i = 3; i < moveTokens.length; i+=3) {
-        locationsToPlace.push([[moveTokens[i],moveTokens[i+1]],moveTokens[i+2]])
+      for (let i = 4; i < moveTokens.length; i+=3) {
+        locationsToPlace.push(`${moveTokens[i]},${moveTokens[i+1]},${moveTokens[i+2]}`)
       }
-      processedBuilder["locations_to_place"]=locationsToPlace
+      processedBuilder["locations_to_place"]=locationsToPlace.join("n")
+      processedBuilder["move_stack"]=0
+      console.log(processedBuilder)
       this.moveStack(processedBuilder)
     }
     return processedBuilder
   }
   async placePiece(processedMoves) {
-
+    try {
+      const response = await axios.get("http://localhost:5000/api/v1/move",
+        { params: processedMoves})
+      console.log(response.data)
+      if("error" in response.data) {
+        this.setState({
+          error: response.data.error,
+        });
+      } else {
+        this.setState({
+          game: response.data,
+          error: undefined,
+          rows: []
+        });
+        this.setState({
+          rows: this.generate_squares()
+        });
+        console.log(this.state.rows)
+        this.forceUpdate();
+      }
+    } catch (error) {
+      console.log(error);
+      this.setState({
+        error: error.message,
+      });
+    }
   }
   async moveStack(processedMoves) {
-
+    try {
+      const response = await axios.get("http://localhost:5000/api/v1/move",
+        { params: processedMoves})
+      console.log(response.data)
+      if("error" in response.data) {
+        this.setState({
+          error: response.data.error,
+        });
+      } else {
+        this.setState({
+          game: response.data,
+          error: undefined,
+          rows: []
+        });
+        this.setState({
+          rows: this.generate_squares()
+        });
+        this.forceUpdate();
+      }
+    } catch (error) {
+      console.log(error);
+      this.setState({
+        error: error.message,
+      });
+    }
   }
-  async sendMove() {
+  sendMove = () => {
     this.parseMove(this.state.move.split(" "))
   }
 
   render() {
-    const rows = this.generate_squares()
     return (
       <Container>
         <Row>
           <Col>
-            <Container style={{float:"left", backgroundColor:"white", borderColor:"brown", width: "560px"}}>
-              {rows.map((value,index)=> {return <Row>{value}</Row>})}
+            <Container style={{float:"left", backgroundColor:"white", borderColor:"brown", width: "560px", position: "relative"}}>
+              {this.state.rows.map((value,index)=> {return <Row>{value}</Row>})}
               <Row>
                 <Col>
                   <a href="#" onClick={()=>this.newGame("Human-Human")}>

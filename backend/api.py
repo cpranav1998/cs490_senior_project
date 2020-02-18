@@ -1,10 +1,14 @@
 import flask
 from flask import request, jsonify
-from classes import game
-from classes import player
-from classes import board
+from flask_cors import CORS, cross_origin
+import sys
+sys.path.append("./classes")
+from classes import *
 app = flask.Flask(__name__)
+cors = CORS(app)
+
 app.config["DEBUG"] = True
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 game = None
 
@@ -13,41 +17,74 @@ def home():
     return "<h1>Tak Backend API</h1>"
 
 @app.route('/api/v1/new_game', methods=['GET'])
+@cross_origin()
 def new_game():
-    if 'type_of_game' in request.args:
-        type_of_game = request.args['type_of_game']
-        p1_name = request.args('p1_name')
-        p2_name = request.args('p2_name')
-    else:
-        return "Error: No game type provided"
-    game = game.Game(type_of_game,5,p1_name,p2_name)
-    return jsonify(game.serialize())
+	try:
+		global game
+		if 'type_of_game' in request.args:
+			type_of_game = request.args['type_of_game']
+			p1_name = request.args['p1_name']
+			p2_name = request.args['p2_name']
+		else:
+			return jsonify({"error":"Error: No game type provided"})
+		if type_of_game=="Human-Human":
+			game = HumanHumanGame(5,p1_name,p2_name)
+		elif type_of_game=="Human-Computer":
+			game = HumanComputerGame(5,p1_name,p2_name)
+		elif type_of_game=="Computer-Computer":
+			game = ComputerComputerGame(5,p1_name,p2_name)
+		else:
+			return jsonify({"error":"Error: Invalid Type of Game"})
+		print(str(game))
+		print(game.get_turn())
+		return jsonify(game.serialize())
+	except Exception as e:
+		return jsonify({"error": str(e)})
+	
 
 @app.route('/api/v1/move', methods=['GET'])
+@cross_origin()
 def make_move():
-	if "player" in request.args:
-		if "place_piece" in request.args:
-			x = int(request.args["x"])
-			y = int(request.args["y"])
-			type_of_piece = request.args["type_of_piece"]
-			player_index = int(request.args["player_index"])
-			game.place_piece(player_index, type_of_piece, x, y)
-			return jsonify(game.serialize())
-		elif "move_stack" in request.args:
-			x = int(request.args["x"])
-			y = int(request.args["y"])
-			locations_to_place = request.args["locations_to_place"]
-			number = int(request.args["number"])
-			player_index = int(request.args["player_index"])
-			game.move_piece(player_index, number, locations_to_place, x, y)
-			return jsonify(game.serialize())
+	try:
+		global game
+		if "player" in request.args:
+			if "place_piece" in request.args:
+				x = int(request.args["x"])
+				y = int(request.args["y"])
+				type_of_piece = request.args["type_of_piece"]
+				game.place_piece(type_of_piece, x, y)
+				print(str(game))
+				print(game.get_turn())
+				return jsonify(game.serialize())
+			elif "move_stack" in request.args:
+				x = int(request.args["x"])
+				y = int(request.args["y"])
+				locations_to_place_raw = request.args["locations_to_place"]
+				locations_to_place = []
+				for row in locations_to_place_raw.split("n"):
+					locs_raw = row.split(",")
+					locations_to_place.append([(int(locs_raw[0]),int(locs_raw[1])),int(locs_raw[2])])
+				# locations_to_place = [(int(locs_raw[0]),int(locs_raw[1])),int(locs_raw[2])]
+				print(locations_to_place)
+				number = int(request.args["number"])
+				game.move_piece(number, locations_to_place, x, y)
+				print(str(game))
+				print(game.get_turn())
+				return jsonify(game.serialize())
+			else:
+				return jsonify({"error":"Error: Invalid Move"})
 		else:
-			return "Error: Invalid Move"
-	else:
-		return "Error: Invalid Player"
+			return jsonify({"error":"Error: Invalid Player"})
+	except Exception as e:
+		return jsonify({"error": str(e)})
+
 
 @app.route('/api/v1/game_won', methods=['GET'])
+@cross_origin()
 def game_won():
-    return game.winner().name()
+	try:
+		return jsonify({"player_name": game.winner().get_name()})
+	except Exception as e:
+		return jsonify({"error": str(e)})
 
 app.run()

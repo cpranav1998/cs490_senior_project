@@ -11,6 +11,8 @@ class Game(object):
 		# else:
 		# 	raise Exception('Error: Invalid type of game')
 		self.board = board.Board(size)
+		self.turn = 1
+		self.first_move = True
 	def majority_owner(self):
 		p1 = 0
 		p2 = 0
@@ -80,7 +82,11 @@ class Game(object):
 		return None
 	def is_end(self):
 		return True if self.winner()!=None else False
-	def place_piece(self, player_index, type_of_piece, x, y):
+	def place_piece(self, type_of_piece, x, y):
+		player_index = self.turn
+		if self.first_move==True and player_index==0:
+			self.turn = 1
+			self.first_move = False
 		if type_of_piece=="Vertical":
 			self.board = self.players[player_index].place_vertical_piece(x,y,self.board)
 		elif type_of_piece=="Horizontal":
@@ -89,17 +95,30 @@ class Game(object):
 			self.board = self.players[player_index].place_capstone_piece(x,y,self.board)
 		else:
 			raise Exception('Error: Invalid type of move')
-	def move_piece(self, player_index, number, locations_to_place, x, y):
-		if number > board.get_carry_limit():
+		if self.turn==1:
+			self.turn = 0
+		elif self.turn==0:
+			self.turn = 1
+	def move_piece(self, number, locations_to_place, x, y):
+		player_index = self.turn
+		if number > self.board.get_carry_limit():
 			raise Exception('Error: Move violates carry limit')
 		else:
 			self.board = self.players[player_index].move_piece(x,y,number,locations_to_place, self.board)
+			if self.turn==1:
+				self.turn = 0
+			elif self.turn==0:
+				self.turn = 1
 	def serialize(self):
 		return {
 			'player_1': self.players[0].serialize(),
-			'player_2': self.players[0].serialize(),
-			'board': self.board.serialize()
+			'player_2': self.players[1].serialize(),
+			'board': self.board.serialize(),
+			"turn": self.turn,
+			"first_move": self.first_move
 		}
+	def get_turn(self):
+		return self.turn
 	def __str__(self):
 		return str(self.board)
 
