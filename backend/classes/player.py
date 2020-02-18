@@ -11,33 +11,42 @@ class Player(object):
 			raise Exception('Error: No pieces left')
 		else:
 			loc = board.get_location(x,y)
-			p = piece.VerticalPiece(self)
-			loc.add_piece(p)
-			board.update_location(x,y,loc)
-			self.normal_pieces-=1
-			return board
+			if loc.place_possible():
+				p = piece.VerticalPiece(self)
+				loc.add_piece(p)
+				board.update_location(x,y,loc)
+				self.normal_pieces-=1
+				return board
+			else:
+				raise Exception('Error: Invalid placement')
 
 	def place_horizontal_piece(self, x, y, board: board.Board):
 		if self.normal_pieces==0:
 			raise Exception('Error: No pieces left')
 		else:
 			loc = board.get_location(x,y)
-			p = piece.HorizontalPiece(self)
-			loc.add_piece(p)
-			board.update_location(x,y,loc)
-			self.normal_pieces-=1
-			return board
+			if loc.place_possible():
+				p = piece.HorizontalPiece(self)
+				loc.add_piece(p)
+				board.update_location(x,y,loc)
+				self.normal_pieces-=1
+				return board
+			else:
+				raise Exception('Error: Invalid placement')
 
 	def place_capstone_piece(self, x, y, board: board.Board):
 		if self.normal_pieces==0:
 			raise Exception('Error: No pieces left')
 		else:
 			loc = board.get_location(x,y)
-			p = piece.CapstonePiece(self)
-			loc.add_piece(p)
-			board.update_location(x,y,loc)
-			self.capstone_pieces-=1
-			return board
+			if loc.place_possible():
+				p = piece.CapstonePiece(self)
+				loc.add_piece(p)
+				board.update_location(x,y,loc)
+				self.capstone_pieces-=1
+				return board
+			else:
+				raise Exception('Error: Invalid placement')
 
 	def all_next_to(self,locations_to_place):
 		x,y = locations_to_place[0][0]

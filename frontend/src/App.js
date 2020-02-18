@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import ReactTooltip from 'react-tooltip'
 import Square from './Square.js'
 import { Container, Row, Col } from 'react-grid-system';
 import axios from 'axios';
@@ -21,7 +22,18 @@ class App extends React.Component {
       for (let y = 0; y < 5; y++) {
         row.push(
           <Col key={`col${x}${y}`}>
-            <Square key={`square${x}${y}`} x={x} y={y} location={this.state.game===undefined? undefined:this.state.game.board.locations[x][y]} style={{position: "relative"}}/>
+            <a
+              data-tip={`x:${x}\ny:${y}`}
+            >
+              <Square 
+                key={`square${x}${y}`} 
+                x={x} 
+                y={y} 
+                location={this.state.game===undefined? undefined:this.state.game.board.locations[x][y]} 
+                style={{position: "relative"}}
+              />
+            </a>
+            <ReactTooltip />
           </Col>
         )
       }
