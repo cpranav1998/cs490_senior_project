@@ -137,6 +137,7 @@ class App extends React.Component {
         })
         console.log(this.state.rows)
         this.forceUpdate();
+        this.gameWon();
       }
     } catch (error) {
       console.log(error);
@@ -173,6 +174,40 @@ class App extends React.Component {
           terminal_elements: this.state.terminal_elements.concat([`Move Made! ${this.state.game.turn==0?"Red":"Green"}'s turn now!`])
         })
         this.forceUpdate();
+        this.gameWon();
+      }
+    } catch (error) {
+      console.log(error);
+      this.setState({
+        error: error.message,
+      });
+      this.setState({
+        terminal_elements: this.state.terminal_elements.concat([`${this.state.error}`])
+      })
+    }
+  }
+  sendMove = () => {
+    this.parseMove(this.state.move.split(" "))
+  } 
+  async gameWon() {
+    try {
+      const response = await axios.get("http://localhost:5000/api/v1/game_won")
+      console.log(response.data)
+      if("error" in response.data) {
+        this.setState({
+          error: response.data.error,
+        });
+        this.setState({
+          terminal_elements: this.state.terminal_elements.concat([`ERROR: ${this.state.error}`])
+        })
+      } else {
+        if(response.data.player_name !== "RUNNING"){
+          this.setState({
+            terminal_elements: this.state.terminal_elements.concat([`Winner is ${response.data.player_name}!!`])
+          })
+          console.log(this.state.rows)
+          this.forceUpdate();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -184,10 +219,6 @@ class App extends React.Component {
       })
     }
   }
-  sendMove = () => {
-    this.parseMove(this.state.move.split(" "))
-  }
-
   render() {
     const terminal_components = this.state.terminal_elements.map(e=> 
       <Element name={`e`}>

@@ -11,8 +11,9 @@ class Game(object):
 		# else:
 		# 	raise Exception('Error: Invalid type of game')
 		self.board = board.Board(size)
-		self.turn = 1
-		self.first_move = True
+		self.turn = 0
+		self.moves_made = 0
+
 	def majority_owner(self):
 		p1 = 0
 		p2 = 0
@@ -83,24 +84,35 @@ class Game(object):
 	def is_end(self):
 		return True if self.winner()!=None else False
 	def place_piece(self, type_of_piece, x, y):
-		player_index = self.turn
-		if self.first_move==True and player_index==0:
-			self.turn = 1
-			self.first_move = False
-		if type_of_piece=="Vertical":
-			self.board = self.players[player_index].place_vertical_piece(x,y,self.board)
-		elif type_of_piece=="Horizontal":
-			self.board = self.players[player_index].place_horizontal_piece(x,y,self.board)
-		elif type_of_piece=="Capstone":
-			self.board = self.players[player_index].place_capstone_piece(x,y,self.board)
+		if self.moves_made<2:
+			if self.turn==1:
+				player_index = 0
+			elif self.turn==0:
+				player_index = 1
 		else:
+			player_index = self.turn
+		if type_of_piece not in set(["Vertical","Horizontal","Capstone"]):
 			raise Exception('Error: Invalid type of move')
-		if self.turn==1:
-			self.turn = 0
-		elif self.turn==0:
-			self.turn = 1
+		else:
+			if type_of_piece=="Vertical":
+				self.board = self.players[player_index].place_vertical_piece(x,y,self.board)
+			elif type_of_piece=="Horizontal":
+				self.board = self.players[player_index].place_horizontal_piece(x,y,self.board)
+			elif type_of_piece=="Capstone":
+				self.board = self.players[player_index].place_capstone_piece(x,y,self.board)
+			if self.turn==1:
+				self.turn = 0
+			elif self.turn==0:
+				self.turn = 1
+			self.moves_made+=1
 	def move_piece(self, number, locations_to_place, x, y):
-		player_index = self.turn
+		if self.moves_made<2:
+			if self.turn==1:
+				player_index = 0
+			elif self.turn==0:
+				player_index = 1
+		else:
+			player_index = self.turn
 		if number > self.board.get_carry_limit():
 			raise Exception('Error: Move violates carry limit')
 		else:
@@ -109,13 +121,14 @@ class Game(object):
 				self.turn = 0
 			elif self.turn==0:
 				self.turn = 1
+			self.moves_made+=1
 	def serialize(self):
 		return {
 			'player_1': self.players[0].serialize(),
 			'player_2': self.players[1].serialize(),
 			'board': self.board.serialize(),
 			"turn": self.turn,
-			"first_move": self.first_move
+			"moves_made": self.moves_made
 		}
 	def get_turn(self):
 		return self.turn

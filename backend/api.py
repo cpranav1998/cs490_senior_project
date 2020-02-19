@@ -83,7 +83,8 @@ def make_move():
 @cross_origin()
 def game_won():
 	try:
-		return jsonify({"player_name": game.winner().get_name()})
+		winner = game.winner()
+		return jsonify({"player_name": winner.get_name() if winner != None else "RUNNING"})
 	except Exception as e:
 		return jsonify({"error": str(e)})
 

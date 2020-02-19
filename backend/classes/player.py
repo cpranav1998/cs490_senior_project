@@ -48,8 +48,10 @@ class Player(object):
 			else:
 				raise Exception('Error: Invalid placement')
 
-	def all_next_to(self,locations_to_place):
+	def all_next_to(self,locations_to_place, orig_x, orig_y):
 		x,y = locations_to_place[0][0]
+		if (x,y) not in set([(orig_x+1,orig_y),(orig_x-1,orig_y),(orig_x,orig_y+1),(orig_x,orig_y-1)]):
+			return False
 		for element in locations_to_place[1:]:
 			next_x,next_y = element[0]
 			if (next_x,next_y) not in set([(x+1,y),(x-1,y),(x,y+1),(x,y-1)]):
@@ -57,16 +59,16 @@ class Player(object):
 		return True
 	def move_piece(self, x, y, number, locations_to_place, board: board.Board):
 		loc = board.get_location(x,y)
-		top_pieces = loc.get_pieces(number)
-		print(self.all_next_to(locations_to_place))
+		print(self.all_next_to(locations_to_place,x,y))
 		print(all(board.get_location(element[0][0],element[0][1]).move_onto_possible()==True for element in locations_to_place))
-		if all(board.get_location(element[0][0],element[0][1]).move_onto_possible()==True for element in locations_to_place) and self.all_next_to(locations_to_place):
+		if all(board.get_location(element[0][0],element[0][1]).move_onto_possible()==True for element in locations_to_place) and self.all_next_to(locations_to_place,x,y):
+			top_pieces = loc.get_pieces(number)
 			for element in locations_to_place:
 				x,y = element[0]
+				loc_to_place_at = board.get_location(x,y)
 				number_of_pieces_to_place = element[1]
 				pieces_to_place = top_pieces[:number_of_pieces_to_place]
 				top_pieces = top_pieces[number_of_pieces_to_place:]
-				loc_to_place_at = board.get_location(x,y)
 				loc_to_place_at.add_pieces(pieces_to_place)
 				board.update_location(x,y,loc_to_place_at)
 				return board
