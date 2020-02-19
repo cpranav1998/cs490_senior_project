@@ -35,7 +35,7 @@ class Player(object):
 				raise Exception('Error: Invalid placement')
 
 	def place_capstone_piece(self, x, y, board: board.Board):
-		if self.normal_pieces==0:
+		if self.capstone_pieces==0:
 			raise Exception('Error: No pieces left')
 		else:
 			loc = board.get_location(x,y)

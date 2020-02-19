@@ -21,7 +21,7 @@ class App extends React.Component {
       terminal_elements: []
     }
   }
-  generate_squares() {
+  generateSquares() {
     let rows = []
     for (let x = 0; x < 5; x++) {
       let row = []
@@ -29,7 +29,7 @@ class App extends React.Component {
         row.push(
           <Col key={`col${x}${y}`}>
             <a
-              data-tip={`x:${x}\ny:${y}`}
+              data-tip={`x:${x} y:${y} ${this.state.game===undefined? "":`${this.state.game.board.locations[x][y].pieces.length} piece${this.state.game.board.locations[x][y].pieces.length==1?"":"s"}`}`}
             >
               <Square 
                 key={`square${x}${y}`} 
@@ -39,7 +39,7 @@ class App extends React.Component {
                 style={{position: "relative"}}
               />
             </a>
-            <ReactTooltip />
+            <ReactTooltip/>
           </Col>
         )
       }
@@ -49,6 +49,12 @@ class App extends React.Component {
   }
   componentDidUpdate() {
     console.log(this.state)
+  }
+  getNormalPieces() {
+    return this.state.game.turn==0? this.state.game.player_1.normal_pieces : this.state.game.player_2.normal_pieces
+  }
+  getCapstonePieces() {
+    return this.state.game.turn==0? this.state.game.player_1.capstone_pieces : this.state.game.player_2.capstone_pieces
   }
   async newGame(type_of_game) {
     try {
@@ -69,10 +75,14 @@ class App extends React.Component {
           rows: []
         });
         this.setState({
-          rows: this.generate_squares()
+          rows: this.generateSquares()
         });
         this.setState({
-          terminal_elements: [`New ${type_of_game} Game!`]
+          terminal_elements: [
+            `New ${type_of_game} Game!`,
+            `${this.state.game.turn==0?"Red":"Green"}'s turn!`,
+            `${this.state.game.turn==0?"Red":"Green"} has ${this.getNormalPieces()} normal piece${this.getNormalPieces()==1?'':'s'} and ${this.getCapstonePieces()} capstone piece${this.getCapstonePieces()==0?'s':''}!`
+          ]
         })
       }
     } catch (error) {
@@ -85,7 +95,7 @@ class App extends React.Component {
       })
     }
   }
-  updateMove = (event) => {
+  updateMove(event) {
     this.setState({move: event.target.value});
   }
 
@@ -131,10 +141,13 @@ class App extends React.Component {
           rows: []
         });
         this.setState({
-          rows: this.generate_squares()
+          rows: this.generateSquares()
         });
         this.setState({
-          terminal_elements: this.state.terminal_elements.concat([`Move Made! ${this.state.game.turn==0?"Red":"Green"}'s turn now!`])
+          terminal_elements: this.state.terminal_elements.concat([
+            `Move Made! ${this.state.game.turn==0?"Red":"Green"}'s turn now!`,
+            `${this.state.game.turn==0?"Red":"Green"} has ${this.getNormalPieces()} normal piece${this.getNormalPieces()==1?'':'s'} and ${this.getCapstonePieces()} capstone piece${this.getCapstonePieces()==0?'s':''}!`
+          ])
         })
         console.log(this.state.rows)
         this.forceUpdate();
@@ -169,10 +182,13 @@ class App extends React.Component {
           rows: []
         });
         this.setState({
-          rows: this.generate_squares()
+          rows: this.generateSquares()
         });
         this.setState({
-          terminal_elements: this.state.terminal_elements.concat([`Move Made! ${this.state.game.turn==0?"Red":"Green"}'s turn now!`])
+          terminal_elements: this.state.terminal_elements.concat([
+            `Move Made! ${this.state.game.turn==0?"Red":"Green"}'s turn now!`,
+            `${this.state.game.turn==0?"Red":"Green"} has ${this.getNormalPieces()} normal piece${this.getNormalPieces()==1?'':'s'} and ${this.getCapstonePieces()} capstone piece${this.getCapstonePieces()==0?'s':''}!`
+          ])
         })
         this.forceUpdate();
         this.gameWon();
@@ -227,56 +243,59 @@ class App extends React.Component {
       </Element>
     )
     return (
-      <Container>
-        <Row>
-          <Col>
-            <Container style={{float:"left", backgroundColor:"white", borderColor:"brown", width: "560px", position: "relative", borderStyle:"solid"}}>
-              <div style={{height:"10px"}} />
-              {this.state.rows.map((value,index)=> {return <Row>{value}</Row>})}
-              <Row>
-                <Col>
-                  <a href="#" onClick={()=>this.newGame("Human-Human")}>
-                    New Human-Human Game
-                  </a>
-                </Col>
-                <Col>
-                  <a href="#" onClick={()=>this.newGame("Human-Computer")}>
-                    New Human-Computer Game
-                  </a>
-                </Col>
-                <Col>
-                  <a href="#" onClick={()=>this.newGame("Computer-Computer")}>
-                    New Computer-Computer Game
-                  </a>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <a href="https://en.wikipedia.org/wiki/Tak_(game)" target="_blank">
-                    <img src={takLogo} style={{"height": "170px", "width": "250px",}}/>
-                  </a>
-                </Col>
-                <Col>
-                  <p>
-                    Instructions:<br />
-                    Type moves into the text box on the right. Moves follow the following format:<br />
-                    1. place [Horizontal | Vertical | Capstone] x y<br />
-                    2. move x y number_of_pieces [first_x first_y number_of_pieces_to_place]*<br />
-                  </p>
-                </Col>
-              </Row>
-            </Container>
-          </Col>
-          <Col>
-            <Terminal 
-              style={{float:"left", backgroundColor:"white", borderColor:"brown"}} 
-              updateMove={this.updateMove.bind(this)} 
-              sendMove={this.sendMove.bind(this)}
-              elements={terminal_components}
-            />
-          </Col>
-        </Row>
-      </Container>
+      <>
+        <div style={{height:"10px"}} />
+        <Container>
+          <Row>
+            <Col>
+              <Container style={{float:"left", backgroundColor:"white", borderColor:"brown", width: "560px", position: "relative", borderStyle:"solid"}}>
+                <div style={{height:"10px"}} />
+                {this.state.rows.map((value,index)=> {return <Row>{value}</Row>})}
+                <Row>
+                  <Col>
+                    <a href="#" onClick={()=>this.newGame("Human-Human")}>
+                      New Human-Human Game
+                    </a>
+                  </Col>
+                  <Col>
+                    <a href="#" onClick={()=>this.newGame("Human-Computer")}>
+                      New Human-Computer Game
+                    </a>
+                  </Col>
+                  <Col>
+                    <a href="#" onClick={()=>this.newGame("Computer-Computer")}>
+                      New Computer-Computer Game
+                    </a>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <a href="https://en.wikipedia.org/wiki/Tak_(game)" target="_blank">
+                      <img src={takLogo} style={{"height": "170px", "width": "250px",}}/>
+                    </a>
+                  </Col>
+                  <Col>
+                    <p>
+                      Instructions:<br />
+                      Type moves into the text box on the right. Moves follow the following format:<br />
+                      1. place [Horizontal | Vertical | Capstone] x y<br />
+                      2. move x y number_of_pieces [first_x first_y number_of_pieces_to_place]*<br />
+                    </p>
+                  </Col>
+                </Row>
+              </Container>
+            </Col>
+            <Col>
+              <Terminal 
+                style={{float:"left", backgroundColor:"white", borderColor:"brown"}} 
+                updateMove={this.updateMove.bind(this)} 
+                sendMove={this.sendMove.bind(this)}
+                elements={terminal_components}
+              />
+            </Col>
+          </Row>
+        </Container>
+      </>
     )
   }
 }
