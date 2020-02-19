@@ -3,8 +3,12 @@ import './App.css';
 import ReactTooltip from 'react-tooltip'
 import Square from './Square.js'
 import { Container, Row, Col } from 'react-grid-system';
+import { Element } from 'react-scroll'
 import axios from 'axios';
 import Terminal from "./Terminal.js"
+/*
+
+*/
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -12,7 +16,8 @@ class App extends React.Component {
       game: undefined,
       error: undefined,
       move: undefined,
-      rows: []
+      rows: [],
+      terminal_elements: []
     }
   }
   generate_squares = () => {
@@ -53,6 +58,9 @@ class App extends React.Component {
         this.setState({
           error: response.data.error,
         });
+        this.setState({
+          terminal_elements: this.state.terminal_elements.concat([`ERROR: ${this.state.error}`])
+        })
       } else {
         this.setState({
           game: response.data,
@@ -62,12 +70,18 @@ class App extends React.Component {
         this.setState({
           rows: this.generate_squares()
         });
+        this.setState({
+          terminal_elements: this.state.terminal_elements.concat([`New ${type_of_game} Game!`])
+        })
       }
     } catch (error) {
       console.log(error);
       this.setState({
         error: error.message,
       });
+      this.setState({
+        terminal_elements: this.state.terminal_elements.concat([`ERROR: ${this.state.error}`])
+      })
     }
   }
   updateMove = (event) => {
@@ -106,6 +120,9 @@ class App extends React.Component {
         this.setState({
           error: response.data.error,
         });
+        this.setState({
+          terminal_elements: this.state.terminal_elements.concat([`ERROR: ${this.state.error}`])
+        })
       } else {
         this.setState({
           game: response.data,
@@ -115,6 +132,9 @@ class App extends React.Component {
         this.setState({
           rows: this.generate_squares()
         });
+        this.setState({
+          terminal_elements: this.state.terminal_elements.concat([`Move Made! ${this.state.game.turn==0?"Red":"Green"}'s turn now!`])
+        })
         console.log(this.state.rows)
         this.forceUpdate();
       }
@@ -123,6 +143,9 @@ class App extends React.Component {
       this.setState({
         error: error.message,
       });
+      this.setState({
+        terminal_elements: this.state.terminal_elements.concat([`ERROR: ${this.state.error}`])
+      })
     }
   }
   async moveStack(processedMoves) {
@@ -134,6 +157,9 @@ class App extends React.Component {
         this.setState({
           error: response.data.error,
         });
+        this.setState({
+          terminal_elements: this.state.terminal_elements.concat([`ERROR: ${this.state.error}`])
+        })
       } else {
         this.setState({
           game: response.data,
@@ -143,6 +169,9 @@ class App extends React.Component {
         this.setState({
           rows: this.generate_squares()
         });
+        this.setState({
+          terminal_elements: this.state.terminal_elements.concat([`Move Made! ${this.state.game.turn==0?"Red":"Green"}'s turn now!`])
+        })
         this.forceUpdate();
       }
     } catch (error) {
@@ -150,6 +179,9 @@ class App extends React.Component {
       this.setState({
         error: error.message,
       });
+      this.setState({
+        terminal_elements: this.state.terminal_elements.concat([`ERROR: ${this.state.error}`])
+      })
     }
   }
   sendMove = () => {
@@ -157,6 +189,11 @@ class App extends React.Component {
   }
 
   render() {
+    const terminal_components = this.state.terminal_elements.map(e=> 
+      <Element name={`e`}>
+        {e}
+      </Element>
+    )
     return (
       <Container>
         <Row>
@@ -173,7 +210,12 @@ class App extends React.Component {
             </Container>
           </Col>
           <Col>
-            <Terminal style={{float:"left", backgroundColor:"white", borderColor:"brown"}} updateMove={this.updateMove.bind(this)} sendMove={this.sendMove.bind(this)}/>
+            <Terminal 
+              style={{float:"left", backgroundColor:"white", borderColor:"brown"}} 
+              updateMove={this.updateMove.bind(this)} 
+              sendMove={this.sendMove.bind(this)}
+              elements={terminal_components}
+            />
           </Col>
         </Row>
       </Container>

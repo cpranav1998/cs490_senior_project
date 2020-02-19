@@ -21,10 +21,7 @@ class Terminal extends React.Component {
                 width: '430px',
                 backgroundColor:"white",
               }}>
-
-              <Element name="firstInsideContainer" style={{marginBottom: '200px'}}>
-                first element inside container
-              </Element>
+              {this.props.elements}
             </Element>
             <form onSubmit={this.props.sendMove} style={{
                 position: 'relative',
