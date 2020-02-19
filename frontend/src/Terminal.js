@@ -13,6 +13,7 @@ class Terminal extends React.Component {
         <Container>
           <Row style={{backgroundColor:"white", borderStyle:"solid", borderColor:"brown"}}>
             <Col>
+            <div style={{height:"10px"}} />
             <Element name="PastMoves" className="element" id="containerElement" style={{
                 position: 'relative',
                 height: '500px',

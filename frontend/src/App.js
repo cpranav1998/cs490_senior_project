@@ -252,7 +252,9 @@ class App extends React.Component {
               </Row>
               <Row>
                 <Col>
-                  <img src={takLogo} style={{"height": "170px", "width": "250px",}}/>
+                  <a href="https://en.wikipedia.org/wiki/Tak_(game)" target="_blank">
+                    <img src={takLogo} style={{"height": "170px", "width": "250px",}}/>
+                  </a>
                 </Col>
                 <Col>
                   <p>
