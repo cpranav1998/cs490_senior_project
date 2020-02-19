@@ -6,6 +6,7 @@ import { Container, Row, Col } from 'react-grid-system';
 import { Element } from 'react-scroll'
 import axios from 'axios';
 import Terminal from "./Terminal.js"
+import takLogo from './takLogo.png';
 /*
 
 */
@@ -20,7 +21,7 @@ class App extends React.Component {
       terminal_elements: []
     }
   }
-  generate_squares = () => {
+  generate_squares() {
     let rows = []
     for (let x = 0; x < 5; x++) {
       let row = []
@@ -71,7 +72,7 @@ class App extends React.Component {
           rows: this.generate_squares()
         });
         this.setState({
-          terminal_elements: this.state.terminal_elements.concat([`New ${type_of_game} Game!`])
+          terminal_elements: [`New ${type_of_game} Game!`]
         })
       }
     } catch (error) {
@@ -88,7 +89,7 @@ class App extends React.Component {
     this.setState({move: event.target.value});
   }
 
-  parseMove = (moveTokens) => {
+  parseMove(moveTokens) {
     let processedBuilder = {player: "player"}
     if (moveTokens[0]==="place") {
       processedBuilder["type_of_piece"]=moveTokens[1]
@@ -186,7 +187,7 @@ class App extends React.Component {
       })
     }
   }
-  sendMove = () => {
+  sendMove() {
     this.parseMove(this.state.move.split(" "))
   } 
   async gameWon() {
@@ -229,13 +230,37 @@ class App extends React.Component {
       <Container>
         <Row>
           <Col>
-            <Container style={{float:"left", backgroundColor:"white", borderColor:"brown", width: "560px", position: "relative"}}>
+            <Container style={{float:"left", backgroundColor:"white", borderColor:"brown", width: "560px", position: "relative", borderStyle:"solid"}}>
+              <div style={{height:"10px"}} />
               {this.state.rows.map((value,index)=> {return <Row>{value}</Row>})}
               <Row>
                 <Col>
                   <a href="#" onClick={()=>this.newGame("Human-Human")}>
                     New Human-Human Game
                   </a>
+                </Col>
+                <Col>
+                  <a href="#" onClick={()=>this.newGame("Human-Computer")}>
+                    New Human-Computer Game
+                  </a>
+                </Col>
+                <Col>
+                  <a href="#" onClick={()=>this.newGame("Computer-Computer")}>
+                    New Computer-Computer Game
+                  </a>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <img src={takLogo} style={{"height": "170px", "width": "250px",}}/>
+                </Col>
+                <Col>
+                  <p>
+                    Instructions:<br />
+                    Type moves into the text box on the right. Moves follow the following format:<br />
+                    1. place [Horizontal | Vertical | Capstone] x y<br />
+                    2. move x y number_of_pieces [first_x first_y number_of_pieces_to_place]*<br />
+                  </p>
                 </Col>
               </Row>
             </Container>
