@@ -1,5 +1,6 @@
 import board
 import piece
+import move
 class Player(object):
 	def __init__(self, number_of_normal_pieces, number_of_capstones,name):
 		self.normal_pieces = number_of_normal_pieces
@@ -98,7 +99,17 @@ class ComputerPlayer(Player):
 	def __init__(self, number_of_normal_pieces, number_of_capstones,name):
 		super().__init__(number_of_normal_pieces, number_of_capstones,name)
 		self.human = False
-
-	def choose_move(self, board):
-		pass
+	def get_possible_moves(self, game_object):
+		possible_moves = []
+		for x in range(game_object.get_size()):
+			for y in range(game_object.get_size()):
+				loc = game_object.get_board().get_location(x,y)
+				if loc.place_possible():
+					possible_moves.extend([move.PlacePieceMove(self,x,y,"horizontal",game_object),
+						move.PlacePieceMove(self,x,y,"vertical",game_object),
+						move.PlacePieceMove(self,x,y,"capstone",game_object)])
+		return possible_moves
+		
+	def choose_move(self, game_object):
+		return random.choice(self.get_possible_moves(game_object))
 

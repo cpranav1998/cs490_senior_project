@@ -132,6 +132,10 @@ class Game(object):
 		}
 	def get_turn(self):
 		return self.turn
+	def get_size(self):
+		return self.board.get_size()
+	def get_board(self):
+		return self.board
 	def __str__(self):
 		return str(self.board)
 
@@ -144,6 +148,12 @@ class HumanComputerGame(Game):
 	def __init__(self,size,p1_name,p2_name):
 		super().__init__(size)
 		self.players = [player.HumanPlayer(21,1,p1_name),player.ComputerPlayer(21,1,p2_name)]
+	def make_computer_move(self):
+		first_move = False
+		if self.moves_made<2:
+			first_move = True
+		move = self.players[self.turn].choose_move(self)
+		move.apply_move(self)
 
 class ComputerComputerGame(Game):
 	def __init__(self,size,p1_name,p2_name):

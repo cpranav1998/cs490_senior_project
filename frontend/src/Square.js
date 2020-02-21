@@ -50,7 +50,7 @@ class Square extends React.Component {
   render() {
     return (
       <div className="SquareDiv" style={{zIndex: 0, position: "relative"}}>
-        <Stage width={70} height={80}>
+        <Stage width={80} height={80}>
           <Layer>
             <Rect
               width={70}
