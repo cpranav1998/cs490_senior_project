@@ -89,7 +89,7 @@ def computer_move():
 	try:
 		global game
 		global game_running
-		game.make_computer_move()
+		game = game.choose_computer_move().apply_move()
 		return jsonify(game.serialize())
 	except Exception as e:
 		return jsonify({"error": str(e)})
